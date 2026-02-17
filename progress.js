@@ -30,13 +30,13 @@ const ProgressManager = (function () {
     }
 
     function populateExerciseSelect() {
-        const sessions = SessionManager.getAllSessions();
+        const sessions = SessionManager.getSessions();
         const exerciseSet = new Map();
 
         for (const session of sessions) {
             for (const exo of session.exercises) {
-                if (!exerciseSet.has(exo.exerciseId)) {
-                    exerciseSet.set(exo.exerciseId, { id: exo.exerciseId, name: exo.name, emoji: exo.emoji });
+                if (!exerciseSet.has(exo.id)) {
+                    exerciseSet.set(exo.id, { id: exo.id, name: exo.name, emoji: exo.emoji });
                 }
             }
         }
@@ -64,12 +64,12 @@ const ProgressManager = (function () {
     }
 
     function populateWeightSelect(exerciseId) {
-        const sessions = SessionManager.getAllSessions();
+        const sessions = SessionManager.getSessions();
         const weights = new Set();
 
         for (const session of sessions) {
             for (const exo of session.exercises) {
-                if (exo.exerciseId === exerciseId) {
+                if (exo.id === exerciseId) {
                     for (const set of exo.sets) {
                         weights.add(set.weight);
                     }
@@ -92,14 +92,14 @@ const ProgressManager = (function () {
     }
 
     function renderChart(exerciseId, weightFilter) {
-        const sessions = SessionManager.getAllSessions();
+        const sessions = SessionManager.getSessions();
 
         // Collect data points: { date, maxReps, weight, volume }
         const dataPoints = [];
 
         for (const session of sessions) {
             for (const exo of session.exercises) {
-                if (exo.exerciseId !== exerciseId) continue;
+                if (exo.id !== exerciseId) continue;
 
                 const filteredSets = weightFilter === 'all'
                     ? exo.sets
@@ -260,7 +260,7 @@ const ProgressManager = (function () {
 
     // ---- Session history ----
     function renderHistory() {
-        const sessions = SessionManager.getAllSessions();
+        const sessions = SessionManager.getSessions();
         const list = dom.historyList;
 
         if (sessions.length === 0) {
@@ -304,8 +304,7 @@ const ProgressManager = (function () {
         return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' });
     }
 
-    function formatDuration(ms) {
-        const minutes = Math.floor(ms / 60000);
+    function formatDuration(minutes) {
         if (minutes < 60) return `${minutes}min`;
         const hours = Math.floor(minutes / 60);
         const rem = minutes % 60;
