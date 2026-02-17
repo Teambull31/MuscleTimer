@@ -1,0 +1,84 @@
+/* Exercise Database — 50 exercises, 7 muscle groups */
+var ExercisesDB = (function () {
+    'use strict';
+    var exercises = [
+        // PECTORAUX
+        { id: 'bench-press', name: 'Développé couché', muscle: 'Pectoraux', emoji: '🏋️', execution: 'Allongé sur un banc plat, saisir la barre largeur épaules+. Descendre la barre au niveau des tétons en contrôlant le mouvement, puis pousser vers le haut en gardant les omoplates serrées.', tips: 'Gardez les pieds bien ancrés au sol. Serrez les omoplates en arrière et vers le bas. Ne rebondissez jamais la barre sur la poitrine.' },
+        { id: 'incline-bench', name: 'Développé incliné', muscle: 'Pectoraux', emoji: '🏋️', execution: 'Sur un banc incliné (30-45°), descendre la barre vers le haut de la poitrine. Pousser en contractant les pectoraux supérieurs.', tips: 'Un angle de 30° suffit pour cibler le haut des pecs. Au-delà de 45°, les épaules prennent le relais.' },
+        { id: 'decline-bench', name: 'Développé décliné', muscle: 'Pectoraux', emoji: '🏋️', execution: 'Sur un banc décliné, descendre la barre vers le bas de la poitrine. Pousser en contractant les pectoraux inférieurs.', tips: 'Amplitude plus courte que le développé couché. Idéal pour le bas des pectoraux.' },
+        { id: 'chest-fly', name: 'Écartés haltères', muscle: 'Pectoraux', emoji: '🏋️', execution: 'Allongé sur un banc, bras tendus au-dessus de la poitrine avec haltères. Ouvrir les bras en arc de cercle, coudes légèrement fléchis, puis refermer.', tips: 'Ne descendez pas trop bas pour protéger les épaules. Imaginez que vous enlacez un arbre.' },
+        { id: 'dips-chest', name: 'Dips pectoraux', muscle: 'Pectoraux', emoji: '🏋️', execution: 'Aux barres parallèles, penchez le buste vers l\'avant. Descendre en pliant les coudes, puis remonter en poussant.', tips: 'Inclinez le buste à 30° vers l\'avant pour cibler les pecs plutôt que les triceps.' },
+        { id: 'push-ups', name: 'Pompes', muscle: 'Pectoraux', emoji: '🏋️', execution: 'En position de planche, mains largeur épaules. Descendre le corps en pliant les coudes, puis pousser pour remonter.', tips: 'Gardez le corps gainé comme une planche. Variez l\'écartement des mains pour cibler différentes zones.' },
+        { id: 'cable-crossover', name: 'Croisés à la poulie', muscle: 'Pectoraux', emoji: '🏋️', execution: 'Debout entre deux poulies hautes, tirer les poignées vers le bas et l\'avant en croisant devant la poitrine.', tips: 'Contractez en position basse pendant 1-2 secondes. Gardez une légère flexion des coudes.' },
+        // DOS
+        { id: 'pull-ups', name: 'Tractions', muscle: 'Dos', emoji: '🧗', execution: 'Suspandu à une barre, mains en pronation largeur épaules+. Tirer le corps vers le haut jusqu\'à ce que le menton dépasse la barre.', tips: 'Initiez le mouvement en tirant les omoplates vers le bas. Évitez de vous balancer.' },
+        { id: 'barbell-row', name: 'Rowing barre', muscle: 'Dos', emoji: '🧗', execution: 'Penché en avant (buste à 45°), tirer la barre vers le nombril en serrant les omoplates. Redescendre contrôlé.', tips: 'Gardez le dos droit et neutre. Ne tirez pas avec les bras, pensez à tirer les coudes en arrière.' },
+        { id: 'dumbbell-row', name: 'Rowing haltère', muscle: 'Dos', emoji: '🧗', execution: 'Un genou et une main sur un banc. Tirer l\'haltère vers la hanche en serrant l\'omoplate.', tips: 'Gardez le bassin stable. Montez le coude haut et serrez en haut du mouvement.' },
+        { id: 'lat-pulldown', name: 'Tirage vertical', muscle: 'Dos', emoji: '🧗', execution: 'Assis à la machine, tirer la barre vers le haut de la poitrine en contractant les dorsaux.', tips: 'Tirez vers la poitrine, pas derrière la nuque. Penchez légèrement le buste en arrière.' },
+        { id: 'deadlift', name: 'Soulevé de terre', muscle: 'Dos', emoji: '🧗', execution: 'Pieds largeur hanches, saisir la barre. Pousser le sol avec les pieds, garder la barre proche du corps, étendre hanches et genoux simultanément.', tips: 'Le dos DOIT rester neutre tout le mouvement. Poussez le sol plutôt que de tirer la barre.' },
+        { id: 't-bar-row', name: 'Rowing T-bar', muscle: 'Dos', emoji: '🧗', execution: 'Debout au-dessus de la barre en T, penché en avant. Tirer vers la poitrine en serrant les omoplates.', tips: 'Excellent pour l\'épaisseur du dos. Variez la prise pour cibler différentes zones.' },
+        // ÉPAULES
+        { id: 'ohp', name: 'Développé militaire', muscle: 'Épaules', emoji: '🫡', execution: 'Debout ou assis, pousser la barre de la poitrine au-dessus de la tête. Bras tendus en haut, puis redescendre contrôlé.', tips: 'Contractez les abdos et les fessiers pour stabiliser. Ne cambrez pas excessivement le dos.' },
+        { id: 'lateral-raise', name: 'Élévations latérales', muscle: 'Épaules', emoji: '🫡', execution: 'Debout, haltères le long du corps. Lever les bras sur les côtés jusqu\'à parallèle au sol, coudes légèrement fléchis.', tips: 'Ne montez pas au-dessus des épaules. Initiez le mouvement avec les deltoïdes, pas les trapèzes.' },
+        { id: 'front-raise', name: 'Élévations frontales', muscle: 'Épaules', emoji: '🫡', execution: 'Debout, lever un haltère devant soi bras tendu jusqu\'à hauteur des épaules. Alterner ou simultané.', tips: 'Contrôlez la descente. Ne balancez pas le corps pour tricher.' },
+        { id: 'rear-delt-fly', name: 'Oiseau', muscle: 'Épaules', emoji: '🫡', execution: 'Penché en avant, ouvrir les bras sur les côtés en serrant les omoplates. Coudes légèrement fléchis.', tips: 'Pensez à ouvrir la poitrine. Mouvement parfait pour la posture et l\'équilibre des épaules.' },
+        { id: 'face-pull', name: 'Face pull', muscle: 'Épaules', emoji: '🫡', execution: 'À la poulie haute avec corde, tirer vers le visage en ouvrant les coudes. Rotation externe en fin de mouvement.', tips: 'Exercice essentiel pour la santé des épaules. Faites-le à chaque séance, même léger.' },
+        { id: 'arnold-press', name: 'Arnold press', muscle: 'Épaules', emoji: '🫡', execution: 'Assis, haltères devant le visage paumes vers soi. Ouvrir et pousser en tournant les paumes vers l\'avant.', tips: 'Mouvement fluide de rotation. Ne chargez pas trop lourd, la rotation est la clé.' },
+        { id: 'shrugs', name: 'Shrugs', muscle: 'Épaules', emoji: '🫡', execution: 'Debout, haltères ou barre le long du corps. Monter les épaules vers les oreilles, contracter les trapèzes en haut.', tips: 'Maintenez 2 secondes en haut. Ne faites pas de rotations d\'épaules.' },
+        // BICEPS
+        { id: 'barbell-curl', name: 'Curl barre', muscle: 'Biceps', emoji: '💪', execution: 'Debout, barre en supination. Fléchir les coudes pour monter la barre vers les épaules. Redescendre contrôlé.', tips: 'Gardez les coudes collés au corps. Ne balancez pas le buste. Contrôlez la phase négative.' },
+        { id: 'dumbbell-curl', name: 'Curl haltères', muscle: 'Biceps', emoji: '💪', execution: 'Debout ou assis, curl alterné ou simultané avec haltères. Supination complète en haut du mouvement.', tips: 'Tournez le poignet en montant pour une contraction maximale du biceps.' },
+        { id: 'hammer-curl', name: 'Curl marteau', muscle: 'Biceps', emoji: '💪', execution: 'Debout, haltères prise neutre (paumes face à face). Fléchir les coudes sans tourner les poignets.', tips: 'Cible le brachial et le brachio-radial. Donne de l\'épaisseur au bras vu de face.' },
+        { id: 'preacher-curl', name: 'Curl au pupitre', muscle: 'Biceps', emoji: '💪', execution: 'Assis au pupitre Larry Scott, bras posés sur le coussin. Curl en isolation complète du biceps.', tips: 'Étendez complètement les bras en bas (sans verrouiller). Mouvement strict, pas de triche possible.' },
+        { id: 'concentration-curl', name: 'Curl concentré', muscle: 'Biceps', emoji: '💪', execution: 'Assis, coude contre l\'intérieur de la cuisse. Curl un bras à la fois en isolation totale.', tips: 'Serrez le biceps en haut pendant 2 secondes. Parfait pour le pic du biceps.' },
+        { id: 'incline-curl', name: 'Curl incliné', muscle: 'Biceps', emoji: '💪', execution: 'Assis sur un banc incliné (45°), bras pendant en arrière. Curl les haltères en gardant les coudes fixes.', tips: 'L\'étirement supplémentaire en bas donne un meilleur recrutement musculaire.' },
+        // TRICEPS
+        { id: 'tricep-pushdown', name: 'Push-down poulie', muscle: 'Triceps', emoji: '⬇️', execution: 'Debout face à la poulie haute, pousser la barre ou corde vers le bas en gardant les coudes au corps.', tips: 'Verrouillez les coudes en bas pour contracter complètement. Gardez les coudes fixes.' },
+        { id: 'skull-crushers', name: 'Skull crushers', muscle: 'Triceps', emoji: '⬇️', execution: 'Allongé sur un banc, barre au-dessus. Plier les coudes pour descendre la barre vers le front, puis étendre.', tips: 'Descendez légèrement derrière la tête pour un meilleur étirement. Coudes pointés au plafond.' },
+        { id: 'tricep-dips', name: 'Dips triceps', muscle: 'Triceps', emoji: '⬇️', execution: 'Aux barres parallèles, buste droit. Descendre et remonter en gardant les coudes serrés.', tips: 'Gardez le buste vertical contrairement aux dips pectoraux. Coudes vers l\'arrière.' },
+        { id: 'tricep-kickback', name: 'Kickback', muscle: 'Triceps', emoji: '⬇️', execution: 'Penché en avant, coude à 90°. Étendre le bras vers l\'arrière en serrant le triceps.', tips: 'Ne bougez que l\'avant-bras. Serrez 1 seconde en haut, bras complètement tendu.' },
+        { id: 'overhead-extension', name: 'Extension overhead', muscle: 'Triceps', emoji: '⬇️', execution: 'Debout ou assis, haltère tenu à deux mains derrière la tête. Étendre les bras vers le haut.', tips: 'Gardez les coudes proches de la tête. Excellent pour la longue portion du triceps.' },
+        { id: 'close-grip-bench', name: 'Développé couché serré', muscle: 'Triceps', emoji: '⬇️', execution: 'Développé couché avec prise serrée (mains écartées largeur épaules). Coudes le long du corps.', tips: 'Prise pas trop serrée pour protéger les poignets. Garde les coudes collés au corps.' },
+        // JAMBES
+        { id: 'squat', name: 'Squat', muscle: 'Jambes', emoji: '🦵', execution: 'Barre sur les trapèzes, pieds largeur épaules. Descendre en poussant les fessiers vers l\'arrière, cuisses parallèles ou plus bas.', tips: 'Gardez les genoux alignés avec les pieds. Poussez les genoux vers l\'extérieur. Le dos reste neutre.' },
+        { id: 'leg-press', name: 'Presse à cuisses', muscle: 'Jambes', emoji: '🦵', execution: 'Assis dans la presse, pieds sur la plateforme largeur épaules. Plier les genoux vers la poitrine puis pousser.', tips: 'Ne verrouillez jamais les genoux en haut. Ne décollez pas le bas du dos du siège.' },
+        { id: 'lunges', name: 'Fentes', muscle: 'Jambes', emoji: '🦵', execution: 'Debout, faire un grand pas en avant. Descendre le genou arrière vers le sol, puis remonter. Alterner les jambes.', tips: 'Le genou avant ne doit pas dépasser la pointe du pied. Gardez le buste droit.' },
+        { id: 'leg-extension', name: 'Leg extension', muscle: 'Jambes', emoji: '🦵', execution: 'Assis à la machine, étendre les jambes en contractant les quadriceps. Redescendre contrôlé.', tips: 'Contractez pendant 1 seconde en haut. Ne balancez pas le poids.' },
+        { id: 'leg-curl', name: 'Leg curl', muscle: 'Jambes', emoji: '🦵', execution: 'Allongé sur la machine, fléchir les genoux en tirant les talons vers les fesses.', tips: 'Contrôlez la phase excentrique. Ne décollez pas les hanches du banc.' },
+        { id: 'calf-raise', name: 'Mollets debout', muscle: 'Jambes', emoji: '🦵', execution: 'Debout sur une marche, monter sur la pointe des pieds en contractant les mollets. Descendre en étirant bien.', tips: 'Amplitude complète : descendez bien en bas pour étirer, montez haut pour contracter.' },
+        { id: 'romanian-deadlift', name: 'Soulevé roumain', muscle: 'Jambes', emoji: '🦵', execution: 'Debout, barre devant les cuisses. Pousser les fessiers vers l\'arrière, descendre la barre le long des jambes, genoux légèrement fléchis.', tips: 'Sentez l\'étirement des ischio-jambiers. Le dos reste neutre. Barres proche du corps.' },
+        { id: 'hip-thrust', name: 'Hip thrust', muscle: 'Jambes', emoji: '🦵', execution: 'Dos contre un banc, barre sur les hanches. Pousser les hanches vers le haut en contractant les fessiers.', tips: 'Marquez une pause en haut pendant 2 secondes. Les tibias doivent être verticaux en haut du mouvement.' },
+        // ABDOS
+        { id: 'crunch', name: 'Crunch', muscle: 'Abdos', emoji: '🔥', execution: 'Allongé au sol, genoux pliés. Enrouler le buste vers les genoux en contractant les abdos. Ne pas tirer sur la nuque.', tips: 'Mouvement court et contrôlé. Soufflez en montant. Mains croisées sur la poitrine ou aux tempes.' },
+        { id: 'leg-raise', name: 'Relevé de jambes', muscle: 'Abdos', emoji: '🔥', execution: 'Suspendu à une barre ou allongé au sol. Lever les jambes tendues ou pliées vers la poitrine.', tips: 'Contrôlez la descente pour ne pas balancer. Variante barre fixe = plus efficace que sol.' },
+        { id: 'plank', name: 'Planche (gainage)', muscle: 'Abdos', emoji: '🔥', execution: 'En appui sur les avant-bras et les pointes de pied. Maintenir le corps droit comme une planche.', tips: 'Ne levez pas et ne laissez pas tomber les hanches. Contractez abdos et fessiers. Respirez normalement.' },
+        { id: 'russian-twist', name: 'Russian twist', muscle: 'Abdos', emoji: '🔥', execution: 'Assis, buste incliné en arrière, pieds levés. Rotation du buste de gauche à droite avec ou sans poids.', tips: 'Le mouvement vient du tronc, pas des bras. Gardez la poitrine ouverte.' },
+        { id: 'ab-wheel', name: 'Ab wheel (roulette)', muscle: 'Abdos', emoji: '🔥', execution: 'À genoux, rouler la roulette vers l\'avant en gardant les abdos contractés. Revenir à la position initiale.', tips: 'Commencez avec une amplitude réduite. Ne cambrez jamais le dos. Exercice avancé très efficace.' },
+        { id: 'cable-crunch', name: 'Crunch à la poulie', muscle: 'Abdos', emoji: '🔥', execution: 'À genoux devant la poulie haute, corde derrière la tête. Enrouler le buste vers le sol en contractant les abdos.', tips: 'Ne tirez pas avec les bras. Le mouvement vient de la flexion du tronc. Excellent pour ajouter de la résistance.' },
+        // BONUS - 4 extras to reach 50
+        { id: 'chest-press-machine', name: 'Presse pectorale', muscle: 'Pectoraux', emoji: '🏋️', execution: 'Assis à la machine, pousser les poignées vers l\'avant en contractant les pectoraux.', tips: 'Bon exercice pour les débutants ou en fin de séance pour l\'épuisement musculaire.' },
+        { id: 'seated-row', name: 'Tirage horizontal', muscle: 'Dos', emoji: '🧗', execution: 'Assis à la poulie basse, tirer la poignée vers l\'abdomen en serrant les omoplates.', tips: 'Gardez le dos droit, ne vous penchez pas en arrière. Tirez les coudes en arrière.' },
+        { id: 'goblet-squat', name: 'Goblet squat', muscle: 'Jambes', emoji: '🦵', execution: 'Debout, haltère ou kettlebell tenu contre la poitrine. Squatter en poussant les genoux dehors.', tips: 'Parfait pour apprendre la technique du squat. L\'haltère devant aide à garder le dos droit.' },
+        { id: 'hanging-knee-raise', name: 'Relevé de genoux suspendu', muscle: 'Abdos', emoji: '🔥', execution: 'Suspendu à la barre fixe, monter les genoux vers la poitrine en contractant les abdos.', tips: 'Ne balancez pas. Contrôlez la descente. Progressez vers les jambes tendues.' }
+    ];
+
+    var muscles = ['Pectoraux', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Jambes', 'Abdos'];
+    var muscleEmojis = { 'Pectoraux': '🏋️', 'Dos': '🧗', 'Épaules': '🫡', 'Biceps': '💪', 'Triceps': '⬇️', 'Jambes': '🦵', 'Abdos': '🔥' };
+
+    return {
+        exercises: exercises,
+        muscles: muscles,
+        muscleEmojis: muscleEmojis,
+        search: function (query, muscleFilter) {
+            var q = (query || '').toLowerCase().trim();
+            return exercises.filter(function (ex) {
+                var matchQuery = !q || ex.name.toLowerCase().indexOf(q) !== -1 || ex.muscle.toLowerCase().indexOf(q) !== -1;
+                var matchMuscle = !muscleFilter || muscleFilter === 'Tous' || ex.muscle === muscleFilter;
+                return matchQuery && matchMuscle;
+            });
+        },
+        getById: function (id) {
+            return exercises.find(function (ex) { return ex.id === id; }) || null;
+        }
+    };
+})();

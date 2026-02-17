@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0a0a1a">
+    <title>MuscleTimer</title>
+    <meta name="description" content="Chronomètre de repos intelligent et suivi de musculation.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="icon-192.svg">
+    <link rel="apple-touch-icon" href="icon-192.svg">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="bg-layer" class="bg-layer"></div>
+    <div class="bg-overlay"></div>
+    <div id="settings-panel" class="settings-panel">
+        <div class="settings-content">
+            <div class="settings-header">
+                <h2>Personnalisation</h2><button id="close-settings" class="close-btn">&times;</button>
+            </div>
+            <div class="settings-section">
+                <h3>Thème</h3>
+                <div class="theme-grid" id="theme-grid">
+                    <button class="theme-swatch" data-theme="night" title="Nuit"><span
+                            style="background:linear-gradient(135deg,#0a0a1a,#1a1a3e)"></span></button>
+                    <button class="theme-swatch" data-theme="ocean" title="Océan"><span
+                            style="background:linear-gradient(135deg,#0a1628,#0d3b66)"></span></button>
+                    <button class="theme-swatch" data-theme="purple" title="Violet"><span
+                            style="background:linear-gradient(135deg,#1a0a2e,#3d1a6e)"></span></button>
+                    <button class="theme-swatch" data-theme="forest" title="Forêt"><span
+                            style="background:linear-gradient(135deg,#0a1a0a,#1a3e1a)"></span></button>
+                    <button class="theme-swatch" data-theme="fire" title="Feu"><span
+                            style="background:linear-gradient(135deg,#1a0a0a,#6e1a1a)"></span></button>
+                </div>
+            </div>
+            <div class="settings-section">
+                <h3>Image de fond</h3>
+                <div class="bg-image-controls">
+                    <label class="upload-btn" for="bg-upload"><svg width="18" height="18" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="17 8 12 3 7 8" />
+                            <line x1="12" y1="3" x2="12" y2="15" />
+                        </svg> Choisir une image</label>
+                    <input type="file" id="bg-upload" accept="image/*" hidden>
+                    <button id="remove-bg" class="remove-bg-btn">Supprimer le fond</button>
+                </div>
+            </div>
+            <div class="settings-section">
+                <h3>Position</h3>
+                <div class="position-grid" id="position-grid">
+                    <button class="pos-btn" data-pos="top">Haut</button>
+                    <button class="pos-btn active" data-pos="center">Centre</button>
+                    <button class="pos-btn" data-pos="bottom">Bas</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="exercise-modal" class="modal-overlay">
+        <div class="modal-sheet">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+                <h2>Ajouter un exercice</h2><button id="close-exercise-modal" class="close-btn">&times;</button>
+            </div>
+            <input type="text" id="exercise-search" class="search-input" placeholder="🔍 Rechercher..."
+                autocomplete="off">
+            <div class="muscle-filter-scroll" id="muscle-filter"></div>
+            <div class="exercise-results-list" id="exercise-results"></div>
+        </div>
+    </div>
+    <div id="exercise-detail-modal" class="modal-overlay">
+        <div class="modal-sheet modal-sheet-sm">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+                <h2 id="detail-name">Exercice</h2><button id="close-detail-modal" class="close-btn">&times;</button>
+            </div>
+            <span class="detail-badge" id="detail-muscle"></span>
+            <div class="detail-section">
+                <h3>🎯 Exécution</h3>
+                <p id="detail-execution"></p>
+            </div>
+            <div class="detail-section">
+                <h3>💡 Conseils</h3>
+                <p id="detail-tips"></p>
+            </div>
+        </div>
+    </div>
+    <div id="recap-modal" class="modal-overlay">
+        <div class="modal-sheet modal-sheet-recap">
+            <div class="modal-handle"></div>
+            <div class="recap-header"><span class="recap-emoji">🎉</span>
+                <h2>Séance terminée !</h2>
+            </div>
+            <div class="recap-stats-grid">
+                <div class="recap-stat"><span class="recap-stat-value" id="recap-exercises">0</span><span
+                        class="recap-stat-label">Exercices</span></div>
+                <div class="recap-stat"><span class="recap-stat-value" id="recap-sets">0</span><span
+                        class="recap-stat-label">Séries</span></div>
+                <div class="recap-stat accent"><span class="recap-stat-value" id="recap-volume">0 kg</span><span
+                        class="recap-stat-label">Volume total</span></div>
+                <div class="recap-stat"><span class="recap-stat-value" id="recap-duration">0min</span><span
+                        class="recap-stat-label">Durée</span></div>
+            </div>
+            <div class="recap-details" id="recap-details"></div>
+            <div class="recap-actions">
+                <button id="close-recap-modal" class="recap-close-btn">Voir historique</button>
+                <button id="new-session-btn" class="recap-new-btn">Nouvelle séance</button>
+            </div>
+        </div>
+    </div>
+    <div class="app-wrapper">
+        <button id="open-settings" class="gear-btn" aria-label="Paramètres"><svg width="22" height="22"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3" />
+                <path
+                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.32 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg></button>
+        <section id="tab-timer" class="tab-content active">
+            <div id="app" class="app align-center">
+                <header class="header">
+                    <h1 class="logo">MUSCLE<span class="accent">TIMER</span></h1>
+                    <p class="subtitle">Repos intelligent</p>
+                </header>
+                <div class="mode-toggle"><button class="mode-btn active" data-mode="rpe">RPE</button><button
+                        class="mode-btn" data-mode="feeling">Ressenti</button>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div id="rpe-selector" class="selector-grid visible">
+                    <button class="rpe-btn" data-rpe="6">6</button><button class="rpe-btn"
+                        data-rpe="7">7</button><button class="rpe-btn" data-rpe="7.5">7.5</button><button
+                        class="rpe-btn" data-rpe="8">8</button>
+                    <button class="rpe-btn" data-rpe="8.5">8.5</button><button class="rpe-btn"
+                        data-rpe="9">9</button><button class="rpe-btn" data-rpe="9.5">9.5</button><button
+                        class="rpe-btn" data-rpe="10">10</button>
+                </div>
+                <div id="feeling-selector" class="selector-grid feeling-grid">
+                    <button class="feeling-btn" data-feeling="easy"><span class="feeling-emoji">😊</span><span
+                            class="feeling-label">Facile</span></button>
+                    <button class="feeling-btn" data-feeling="moderate"><span class="feeling-emoji">😤</span><span
+                            class="feeling-label">Modéré</span></button>
+                    <button class="feeling-btn" data-feeling="hard"><span class="feeling-emoji">😰</span><span
+                            class="feeling-label">Difficile</span></button>
+                    <button class="feeling-btn" data-feeling="exhausting"><span class="feeling-emoji">🔥</span><span
+                            class="feeling-label">Épuisant</span></button>
+                </div>
+                <div class="timer-container" id="timer-container"><svg class="timer-ring" viewBox="0 0 200 200">
+                        <circle class="ring-bg" cx="100" cy="100" r="90" />
+                        <circle class="ring-progress" id="ring-progress" cx="100" cy="100" r="90" />
+                    </svg>
+                    <div class="timer-inner"><span class="timer-display" id="timer-display">--:--</span><span
+                            class="timer-label" id="timer-label">Sélectionne un niveau</span></div>
+                </div>
+                <div class="time-adjuster" id="time-adjuster"><button class="adj-btn" id="adj-minus">-15s</button><span
+                        class="adj-label">Ajuster</span><button class="adj-btn" id="adj-plus">+15s</button></div>
+                <button class="start-btn" id="start-btn" disabled><span class="start-text"
+                        id="start-text">DÉMARRER</span>
+                    <div class="start-ripple"></div>
+                </button>
+            </div>
+        </section>
+        <section id="tab-session" class="tab-content">
+            <div class="tab-scroll">
+                <header class="tab-header">
+                    <h1 class="tab-title">🏋️ Séance</h1>
+                    <p class="tab-subtitle">Log tes exercices et séries</p>
+                </header>
+                <div class="session-stats" id="session-stats" style="display:none">
+                    <div class="ss-item"><span class="ss-value" id="stat-exercises">0</span><span
+                            class="ss-label">Exos</span></div>
+                    <div class="ss-item"><span class="ss-value" id="stat-sets">0</span><span
+                            class="ss-label">Séries</span></div>
+                    <div class="ss-item ss-accent"><span class="ss-value" id="stat-volume">0 kg</span><span
+                            class="ss-label">Volume</span></div>
+                </div>
+                <div id="exercise-list" class="exercise-list"></div>
+                <div id="session-empty" class="session-empty"><span class="empty-icon">🏋️</span>
+                    <p>Aucun exercice ajouté</p>
+                    <p class="empty-hint">Commence par ajouter un exercice ci-dessous</p>
+                </div>
+                <button class="add-exercise-btn" id="add-exercise-btn"><span>+</span> Ajouter un exercice</button>
+                <button class="end-session-btn" id="end-session-btn" style="display:none">🏁 Terminer la séance</button>
+            </div>
+        </section>
+        <section id="tab-progress" class="tab-content">
+            <div class="tab-scroll">
+                <header class="tab-header">
+                    <h1 class="tab-title">📈 Progression</h1>
+                    <p class="tab-subtitle">Suis ton évolution</p>
+                </header>
+                <div class="progress-controls">
+                    <div class="select-wrapper"><label>Exercice</label><select id="progress-exercise-select"
+                            class="custom-select">
+                            <option value="">— Choisir un exercice —</option>
+                        </select></div>
+                    <div class="select-wrapper" style="display:none"><label>Poids</label><select
+                            id="progress-weight-select" class="custom-select">
+                            <option value="all">Tous les poids</option>
+                        </select></div>
+                </div>
+                <p class="no-data-msg" id="no-data-msg">Sélectionne un exercice pour voir ta progression</p>
+                <div class="chart-container" id="chart-container" style="display:none"><canvas
+                        id="progress-chart"></canvas></div>
+                <div class="history-section">
+                    <h2 class="history-title">📋 Historique des séances</h2>
+                    <div id="history-list" class="history-list"></div><button class="clear-history-btn"
+                        id="clear-history-btn" style="display:none">🗑️ Effacer l'historique</button>
+                </div>
+            </div>
+        </section>
+        <nav class="bottom-nav" id="bottom-nav">
+            <button class="nav-tab active" data-tab="timer"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="13" r="8" />
+                    <path d="M12 9v4l2 2" />
+                    <path d="M5 3L2 6" />
+                    <path d="M22 6l-3-3" />
+                    <path d="M12 5V3" />
+                </svg><span>Timer</span></button>
+            <button class="nav-tab" data-tab="session"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                </svg><span>Séance</span></button>
+            <button class="nav-tab" data-tab="progress"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                </svg><span>Progression</span></button>
+        </nav>
+    </div>
+    <script src="exercises-db.js"></script>
+    <script src="session.js"></script>
+    <script src="progress.js"></script>
+    <script src="app.js"></script>
+    <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./service-worker.js').then(() => console.log('SW ok')).catch(e => console.log('SW fail', e)); }</script>
+</body>
+
+</html>
