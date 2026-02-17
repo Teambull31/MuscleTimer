@@ -1645,3 +1645,160 @@ body.has-bg-image .bg-overlay {
         gap: 14px
     }
 }
+
+/* PRESETS */
+.session-preset-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px
+}
+
+.preset-load-btn,
+.preset-save-btn {
+    flex: 1;
+    padding: 11px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-family: 'Inter', sans-serif;
+    font-size: .78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .25s
+}
+
+.preset-load-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(124, 92, 252, .05)
+}
+
+.preset-save-btn {
+    border-color: rgba(46, 213, 115, .2);
+    color: var(--success);
+    background: rgba(46, 213, 115, .05)
+}
+
+.preset-save-btn:hover {
+    border-color: var(--success);
+    background: rgba(46, 213, 115, .1)
+}
+
+.presets-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 55dvh;
+    overflow-y: auto
+}
+
+.presets-empty {
+    text-align: center;
+    padding: 30px 16px;
+    color: var(--text-muted)
+}
+
+.presets-empty .empty-icon {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 10px
+}
+
+.presets-empty p {
+    font-size: .85rem;
+    font-weight: 500
+}
+
+.preset-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--bg-card);
+    cursor: pointer;
+    transition: all .25s;
+    animation: fadeIn .3s
+}
+
+.preset-card:hover {
+    border-color: var(--accent);
+    background: var(--bg-card-hover)
+}
+
+.preset-card-info {
+    flex: 1;
+    min-width: 0
+}
+
+.preset-card-name {
+    display: block;
+    font-weight: 700;
+    font-size: .9rem;
+    margin-bottom: 2px
+}
+
+.preset-card-detail {
+    display: block;
+    font-size: .68rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis
+}
+
+.preset-card-emoji {
+    font-size: 1.4rem;
+    flex-shrink: 0
+}
+
+.preset-card-delete {
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(255, 71, 87, .15);
+    border-radius: 8px;
+    background: rgba(255, 71, 87, .05);
+    color: var(--danger);
+    font-size: .85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .2s;
+    flex-shrink: 0
+}
+
+.preset-card-delete:hover {
+    background: rgba(255, 71, 87, .15);
+    border-color: var(--danger)
+}
+
+.save-preset-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px
+}
+
+.preset-save-confirm-btn {
+    padding: 14px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 70%, var(--accent-secondary)));
+    color: white;
+    font-family: 'Inter', sans-serif;
+    font-size: .9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s;
+    box-shadow: 0 4px 16px var(--accent-glow)
+}
+
+.preset-save-confirm-btn:hover {
+    transform: translateY(-1px)
+}
+
+.preset-save-confirm-btn:active {
+    transform: scale(.97)
+}

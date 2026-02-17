@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muscle-timer-v2.2';
+const CACHE_NAME = 'muscle-timer-v2.3';
 const ASSET_NAMES = ['index.html', 'style.css', 'app.js', 'exercises-db.js', 'session.js', 'progress.js', 'manifest.json', 'icon-192.svg', 'icon-512.svg'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE_NAME).then(c => { const base = self.registration.scope; const urls = ASSET_NAMES.map(n => new URL(n, base).href); urls.push(base); return c.addAll(urls) })); self.skipWaiting() });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(k => Promise.all(k.filter(x => x !== CACHE_NAME).map(x => caches.delete(x))))); self.clients.claim() });

@@ -118,6 +118,34 @@
             </div>
         </div>
     </div>
+    <!-- PRESETS MODAL -->
+    <div id="presets-modal" class="modal-overlay">
+        <div class="modal-sheet">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+                <h2>⭐ Mes presets</h2><button id="close-presets-modal" class="close-btn">&times;</button>
+            </div>
+            <div id="presets-list" class="presets-list"></div>
+            <div id="presets-empty" class="presets-empty"><span class="empty-icon">⭐</span>
+                <p>Aucun preset sauvegardé</p>
+                <p class="empty-hint">Ajoute des exercices puis sauvegarde comme preset</p>
+            </div>
+        </div>
+    </div>
+    <!-- SAVE PRESET PROMPT -->
+    <div id="save-preset-modal" class="modal-overlay">
+        <div class="modal-sheet modal-sheet-sm">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+                <h2>💾 Sauvegarder le preset</h2><button id="close-save-preset" class="close-btn">&times;</button>
+            </div>
+            <div class="save-preset-form">
+                <input type="text" id="preset-name-input" class="search-input"
+                    placeholder="Nom du preset (ex: Push day)" autocomplete="off" maxlength="40">
+                <button id="confirm-save-preset" class="preset-save-confirm-btn">💾 Sauvegarder</button>
+            </div>
+        </div>
+    </div>
     <div class="app-wrapper">
         <button id="open-settings" class="gear-btn" aria-label="Paramètres"><svg width="22" height="22"
                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -187,6 +215,10 @@
                 <div id="session-empty" class="session-empty"><span class="empty-icon">🏋️</span>
                     <p>Aucun exercice ajouté</p>
                     <p class="empty-hint">Commence par ajouter un exercice ci-dessous</p>
+                </div>
+                <div class="session-preset-actions">
+                    <button class="preset-load-btn" id="load-preset-btn">⭐ Charger un preset</button>
+                    <button class="preset-save-btn" id="save-preset-btn" style="display:none">💾 Sauvegarder</button>
                 </div>
                 <button class="add-exercise-btn" id="add-exercise-btn"><span>+</span> Ajouter un exercice</button>
                 <button class="end-session-btn" id="end-session-btn" style="display:none">🏁 Terminer la séance</button>
