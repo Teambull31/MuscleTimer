@@ -186,6 +186,7 @@ var SessionManager = (function () {
     }
 
     function endSession() {
+        console.log('[Session] endSession called, exercises:', sessionExercises.length);
         if (sessionExercises.length === 0) return;
         var duration = sessionStart ? Math.round((Date.now() - sessionStart) / 60000) : 0;
         var totalSets = 0, totalVolume = 0;
@@ -238,7 +239,8 @@ var SessionManager = (function () {
             sessions.unshift(session);
             if (sessions.length > 100) sessions = sessions.slice(0, 100);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
-        } catch (e) { }
+            console.log('[Session] Saved! Total sessions:', sessions.length);
+        } catch (e) { console.error('[Session] Save error:', e); }
     }
 
     function getSessions() {
