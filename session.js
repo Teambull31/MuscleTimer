@@ -2,6 +2,7 @@
 var SessionManager = (function () {
     'use strict';
     var STORAGE_KEY = 'muscle-timer-sessions';
+    var PRESETS_KEY = 'muscle-timer-presets';
     var sessionExercises = [];
     var sessionStart = null;
 
@@ -24,6 +25,15 @@ var SessionManager = (function () {
         document.getElementById('new-session-btn').addEventListener('click', function () { closeRecapModal(); resetSession(); });
         buildMuscleFilter();
         filterExercises();
+        // Presets
+        document.getElementById('load-preset-btn').addEventListener('click', openPresetsModal);
+        document.getElementById('close-presets-modal').addEventListener('click', closePresetsModal);
+        document.getElementById('presets-modal').addEventListener('click', function (e) { if (e.target === this) closePresetsModal(); });
+        document.getElementById('save-preset-btn').addEventListener('click', openSavePresetModal);
+        document.getElementById('close-save-preset').addEventListener('click', closeSavePresetModal);
+        document.getElementById('save-preset-modal').addEventListener('click', function (e) { if (e.target === this) closeSavePresetModal(); });
+        document.getElementById('confirm-save-preset').addEventListener('click', confirmSavePreset);
+        document.getElementById('preset-name-input').addEventListener('keydown', function (e) { if (e.key === 'Enter') confirmSavePreset(); });
     }
 
     function buildMuscleFilter() {
@@ -121,11 +131,13 @@ var SessionManager = (function () {
             empty.style.display = '';
             stats.style.display = 'none';
             endBtn.style.display = 'none';
+            document.getElementById('save-preset-btn').style.display = 'none';
             return;
         }
         empty.style.display = 'none';
         stats.style.display = '';
         endBtn.style.display = '';
+        document.getElementById('save-preset-btn').style.display = '';
 
         var totalSets = 0, totalVolume = 0;
         list.innerHTML = '';
@@ -249,6 +261,88 @@ var SessionManager = (function () {
 
     function clearSessions() {
         try { localStorage.removeItem(STORAGE_KEY); } catch (e) { }
+    }
+
+    // ---- PRESETS ----
+    function getPresets() {
+        try { return JSON.parse(localStorage.getItem(PRESETS_KEY)) || []; } catch (e) { return []; }
+    }
+    function savePresets(presets) {
+        try { localStorage.setItem(PRESETS_KEY, JSON.stringify(presets)); } catch (e) { console.error('[Presets] Save error:', e); }
+    }
+    function openPresetsModal() {
+        renderPresetsList();
+        document.getElementById('presets-modal').classList.add('open');
+    }
+    function closePresetsModal() { document.getElementById('presets-modal').classList.remove('open'); }
+    function openSavePresetModal() {
+        document.getElementById('preset-name-input').value = '';
+        document.getElementById('save-preset-modal').classList.add('open');
+        setTimeout(function () { document.getElementById('preset-name-input').focus(); }, 200);
+    }
+    function closeSavePresetModal() { document.getElementById('save-preset-modal').classList.remove('open'); }
+    function confirmSavePreset() {
+        var name = document.getElementById('preset-name-input').value.trim();
+        if (!name) { document.getElementById('preset-name-input').focus(); return; }
+        if (sessionExercises.length === 0) return;
+        var preset = {
+            id: Date.now().toString(36),
+            name: name,
+            exercises: sessionExercises.map(function (ex) { return { id: ex.id, name: ex.name, emoji: ex.emoji, muscle: ex.muscle }; })
+        };
+        var presets = getPresets();
+        presets.unshift(preset);
+        if (presets.length > 20) presets = presets.slice(0, 20);
+        savePresets(presets);
+        closeSavePresetModal();
+    }
+    function loadPreset(presetId) {
+        var presets = getPresets();
+        var preset = null;
+        for (var i = 0; i < presets.length; i++) { if (presets[i].id === presetId) { preset = presets[i]; break; } }
+        if (!preset) return;
+        sessionExercises = [];
+        sessionStart = Date.now();
+        for (var j = 0; j < preset.exercises.length; j++) {
+            var ex = preset.exercises[j];
+            sessionExercises.push({ id: ex.id, name: ex.name, emoji: ex.emoji, muscle: ex.muscle, sets: [] });
+        }
+        renderSession();
+        closePresetsModal();
+    }
+    function deletePreset(presetId) {
+        var presets = getPresets();
+        presets = presets.filter(function (p) { return p.id !== presetId; });
+        savePresets(presets);
+        renderPresetsList();
+    }
+    function renderPresetsList() {
+        var list = document.getElementById('presets-list');
+        var empty = document.getElementById('presets-empty');
+        var presets = getPresets();
+        if (presets.length === 0) { list.innerHTML = ''; empty.style.display = ''; return; }
+        empty.style.display = 'none';
+        var html = '';
+        for (var i = 0; i < presets.length; i++) {
+            var p = presets[i];
+            var emojis = p.exercises.map(function (e) { return e.emoji; }).join(' ');
+            var names = p.exercises.map(function (e) { return e.name; }).join(', ');
+            html += '<div class="preset-card" data-preset-id="' + p.id + '">';
+            html += '<span class="preset-card-emoji">\u2b50</span>';
+            html += '<div class="preset-card-info">';
+            html += '<span class="preset-card-name">' + p.name + '</span>';
+            html += '<span class="preset-card-detail">' + p.exercises.length + ' exos \u2022 ' + names + '</span>';
+            html += '</div>';
+            html += '<button class="preset-card-delete" data-delete-id="' + p.id + '" title="Supprimer">\ud83d\uddd1\ufe0f</button>';
+            html += '</div>';
+        }
+        list.innerHTML = html;
+        list.onclick = function (e) {
+            var delBtn = e.target.closest('.preset-card-delete');
+            if (delBtn) { e.stopPropagation(); deletePreset(delBtn.dataset.deleteId); return; }
+            var card = e.target.closest('.preset-card');
+            if (card) loadPreset(card.dataset.presetId);
+        };
     }
 
     return { init: init, getSessions: getSessions, clearSessions: clearSessions };
