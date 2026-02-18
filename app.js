@@ -25,6 +25,12 @@
   let timerTotal = 0;
   let isRunning = false;
 
+  // Free timer state
+  let freeTimerInterval = null;
+  let freeTimerRemaining = 0;
+  let freeTimerTotal = 0;
+  let freeTimerRunning = false;
+
   // ---- DOM refs ----
   const app = document.getElementById('app');
   const bgLayer = document.getElementById('bg-layer');
@@ -43,6 +49,16 @@
   const adjPlus = document.getElementById('adj-plus');
   const startBtn = document.getElementById('start-btn');
   const startText = document.getElementById('start-text');
+
+  // Free timer DOM refs
+  const freeRingProgress = document.getElementById('free-ring-progress');
+  const freeTimerDisplay = document.getElementById('free-timer-display');
+  const freeTimerRingWrap = document.getElementById('free-timer-ring-wrap');
+  const freeStartBtn = document.getElementById('free-start-btn');
+  const freeMinInput = document.getElementById('free-min');
+  const freeSecInput = document.getElementById('free-sec');
+  const freeTimerInputs = document.getElementById('free-timer-inputs');
+  const FREE_CIRCUMFERENCE = 2 * Math.PI * 52;
 
   // Settings
   const settingsPanel = document.getElementById('settings-panel');
@@ -362,9 +378,76 @@
   bgUpload.addEventListener('change', handleBgUpload);
   removeBg.addEventListener('click', removeBgImage);
 
+  // ---- Free Timer ----
+  function setFreeRingProgress(fraction) {
+    const offset = FREE_CIRCUMFERENCE * (1 - fraction);
+    freeRingProgress.style.strokeDashoffset = offset;
+  }
+
+  function startFreeTimer() {
+    if (freeTimerRunning) { cancelFreeTimer(); return; }
+    const mins = Math.max(0, parseInt(freeMinInput.value) || 0);
+    const secs = Math.max(0, Math.min(59, parseInt(freeSecInput.value) || 0));
+    const total = mins * 60 + secs;
+    if (total <= 0) { freeMinInput.focus(); return; }
+    getAudioContext();
+    freeTimerRunning = true;
+    freeTimerTotal = total;
+    freeTimerRemaining = total;
+    freeTimerRingWrap.classList.add('running');
+    freeTimerRingWrap.classList.remove('finished');
+    freeStartBtn.textContent = '■ STOP';
+    freeStartBtn.classList.add('cancel');
+    freeTimerInputs.style.opacity = '0.4';
+    freeTimerInputs.style.pointerEvents = 'none';
+    setFreeRingProgress(1);
+    freeTimerDisplay.textContent = formatTime(freeTimerRemaining);
+    freeTimerInterval = setInterval(() => {
+      freeTimerRemaining--;
+      if (freeTimerRemaining <= 0) { freeTimerRemaining = 0; finishFreeTimer(); return; }
+      freeTimerDisplay.textContent = formatTime(freeTimerRemaining);
+      setFreeRingProgress(freeTimerRemaining / freeTimerTotal);
+    }, 1000);
+  }
+
+  function cancelFreeTimer() {
+    clearInterval(freeTimerInterval);
+    freeTimerInterval = null;
+    freeTimerRunning = false;
+    freeTimerRingWrap.classList.remove('running', 'finished');
+    freeStartBtn.textContent = '▶ START';
+    freeStartBtn.classList.remove('cancel');
+    freeTimerInputs.style.opacity = '';
+    freeTimerInputs.style.pointerEvents = '';
+    freeTimerDisplay.textContent = '--:--';
+    setFreeRingProgress(0);
+  }
+
+  async function finishFreeTimer() {
+    clearInterval(freeTimerInterval);
+    freeTimerInterval = null;
+    freeTimerRunning = false;
+    freeTimerRingWrap.classList.remove('running');
+    freeTimerRingWrap.classList.add('finished');
+    freeStartBtn.textContent = '▶ START';
+    freeStartBtn.classList.remove('cancel');
+    freeTimerInputs.style.opacity = '';
+    freeTimerInputs.style.pointerEvents = '';
+    freeTimerDisplay.textContent = '0:00';
+    setFreeRingProgress(0);
+    await playDoubleBeep();
+    setTimeout(() => {
+      freeTimerRingWrap.classList.remove('finished');
+      freeTimerDisplay.textContent = '--:--';
+    }, 3000);
+  }
+
+  freeStartBtn.addEventListener('click', startFreeTimer);
+
   // ---- Init ----
   loadPrefs();
   setRingProgress(0);
+  setFreeRingProgress(0);
 
   // Initialize modules
   SessionManager.init();

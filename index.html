@@ -195,6 +195,39 @@
                         id="start-text">DÉMARRER</span>
                     <div class="start-ripple"></div>
                 </button>
+                <!-- PROGRAMMABLE TIMER -->
+                <div class="free-timer-card" id="free-timer-card">
+                    <div class="free-timer-header">
+                        <span class="free-timer-title">⏱ Timer libre</span>
+                    </div>
+                    <div class="free-timer-body">
+                        <div class="free-timer-ring-wrap" id="free-timer-ring-wrap">
+                            <svg class="free-timer-ring" viewBox="0 0 120 120">
+                                <circle class="ring-bg" cx="60" cy="60" r="52" />
+                                <circle class="free-ring-progress" id="free-ring-progress" cx="60" cy="60" r="52" />
+                            </svg>
+                            <div class="free-timer-inner">
+                                <span class="free-timer-display" id="free-timer-display">--:--</span>
+                            </div>
+                        </div>
+                        <div class="free-timer-controls">
+                            <div class="free-timer-inputs" id="free-timer-inputs">
+                                <div class="free-input-group">
+                                    <input type="number" id="free-min" class="free-time-input" value="5" min="0"
+                                        max="99" placeholder="0">
+                                    <label>min</label>
+                                </div>
+                                <span class="free-input-sep">:</span>
+                                <div class="free-input-group">
+                                    <input type="number" id="free-sec" class="free-time-input" value="0" min="0"
+                                        max="59" placeholder="0">
+                                    <label>sec</label>
+                                </div>
+                            </div>
+                            <button class="free-start-btn" id="free-start-btn">▶ START</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
         <section id="tab-session" class="tab-content">

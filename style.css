@@ -1802,3 +1802,181 @@ body.has-bg-image .bg-overlay {
 .preset-save-confirm-btn:active {
     transform: scale(.97)
 }
+
+/* FREE / PROGRAMMABLE TIMER */
+.free-timer-card {
+    width: 100%;
+    max-width: 320px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 16px 18px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    animation: fadeIn .4s ease
+}
+
+.free-timer-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px
+}
+
+.free-timer-title {
+    font-size: .75rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 2px
+}
+
+.free-timer-body {
+    display: flex;
+    align-items: center;
+    gap: 18px
+}
+
+.free-timer-ring-wrap {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center
+}
+
+.free-timer-ring {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg)
+}
+
+.free-ring-progress {
+    fill: none;
+    stroke: var(--accent-secondary);
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-dasharray: 326.73;
+    stroke-dashoffset: 326.73;
+    transition: stroke-dashoffset .4s;
+    filter: drop-shadow(0 0 6px rgba(255, 107, 107, .4))
+}
+
+.free-timer-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center
+}
+
+.free-timer-display {
+    font-size: 1.4rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 1px;
+    color: var(--text-primary)
+}
+
+.free-timer-ring-wrap.running .free-timer-display {
+    color: var(--accent-secondary)
+}
+
+.free-timer-ring-wrap.finished .free-timer-display {
+    animation: pulse .6s ease infinite alternate;
+    color: var(--success)
+}
+
+.free-timer-controls {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px
+}
+
+.free-timer-inputs {
+    display: flex;
+    align-items: center;
+    gap: 6px
+}
+
+.free-input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px
+}
+
+.free-input-group label {
+    font-size: .6rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600
+}
+
+.free-time-input {
+    width: 52px;
+    padding: 8px 4px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, .04);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-align: center;
+    outline: none;
+    transition: border-color .2s;
+    -moz-appearance: textfield;
+    appearance: textfield
+}
+
+.free-time-input::-webkit-outer-spin-button,
+.free-time-input::-webkit-inner-spin-button {
+    -webkit-appearance: none
+}
+
+.free-time-input:focus {
+    border-color: var(--accent-secondary)
+}
+
+.free-input-sep {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    padding-bottom: 14px
+}
+
+.free-start-btn {
+    padding: 10px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent-secondary), color-mix(in srgb, var(--accent-secondary) 70%, var(--accent)));
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all .25s;
+    box-shadow: 0 3px 14px rgba(255, 107, 107, .3)
+}
+
+.free-start-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 20px rgba(255, 107, 107, .4)
+}
+
+.free-start-btn:active {
+    transform: scale(.97)
+}
+
+.free-start-btn.cancel {
+    background: linear-gradient(135deg, var(--danger), #c0392b);
+    box-shadow: 0 3px 14px rgba(255, 71, 87, .3)
+}
