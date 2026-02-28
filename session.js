@@ -5,6 +5,7 @@ var SessionManager = (function () {
     var PRESETS_KEY = 'muscle-timer-presets';
     var sessionExercises = [];
     var sessionStart = null;
+    var lastWeightUsed = {}; // Tracks last weight per exercise index for pre-filling
 
     function init() {
         document.getElementById('add-exercise-btn').addEventListener('click', openExerciseModal);
@@ -96,6 +97,10 @@ var SessionManager = (function () {
     function addExercise(exId) {
         var ex = ExercisesDB.getById(exId);
         if (!ex) return;
+        var alreadyIn = sessionExercises.some(function (e) { return e.id === exId; });
+        if (alreadyIn && typeof window.showToast === 'function') {
+            window.showToast(ex.name + ' est déjà dans la séance', 'warning');
+        }
         if (!sessionStart) sessionStart = Date.now();
         var entry = { id: exId, name: ex.name, emoji: ex.emoji, muscle: ex.muscle, sets: [] };
         sessionExercises.push(entry);
@@ -143,6 +148,7 @@ var SessionManager = (function () {
         var isNewVolumePR = (weight * reps) > historical.bestVolume && historical.bestVolume > 0;
 
         ex.sets.push({ weight: weight, reps: reps, isPR: isNewWeightPR || isNewVolumePR });
+        lastWeightUsed[exIndex] = weight;
 
         if ((isNewWeightPR || isNewVolumePR) && typeof window.showToast === 'function') {
             var prMsg = isNewWeightPR ? '🏆 Nouveau record de poids !' : '🏆 Nouveau record de volume !';
@@ -273,6 +279,7 @@ var SessionManager = (function () {
             wInput.type = 'number'; wInput.className = 'set-input';
             wInput.placeholder = 'kg'; wInput.min = '0'; wInput.step = '0.5';
             wInput.dataset.field = 'weight-' + exIdx;
+            if (lastWeightUsed[exIdx] !== undefined) wInput.value = lastWeightUsed[exIdx];
             var sep = document.createElement('span');
             sep.className = 'set-separator'; sep.textContent = '×';
             var rInput = document.createElement('input');
@@ -409,6 +416,7 @@ var SessionManager = (function () {
     function resetSession() {
         sessionExercises = [];
         sessionStart = null;
+        lastWeightUsed = {};
         var notesEl = document.getElementById('session-notes');
         if (notesEl) notesEl.value = '';
         renderSession();
@@ -469,6 +477,7 @@ var SessionManager = (function () {
         if (presets.length > 20) presets = presets.slice(0, 20);
         savePresets(presets);
         closeSavePresetModal();
+        if (typeof window.showToast === 'function') window.showToast('Preset "' + name + '" sauvegardé !', 'success');
     }
     function loadPreset(presetId) {
         var presets = getPresets();
@@ -490,6 +499,14 @@ var SessionManager = (function () {
         savePresets(presets);
         renderPresetsList();
     }
+    function escapeHtml(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
     function renderPresetsList() {
         var list = document.getElementById('presets-list');
         var empty = document.getElementById('presets-empty');
@@ -499,15 +516,14 @@ var SessionManager = (function () {
         var html = '';
         for (var i = 0; i < presets.length; i++) {
             var p = presets[i];
-            var emojis = p.exercises.map(function (e) { return e.emoji; }).join(' ');
-            var names = p.exercises.map(function (e) { return e.name; }).join(', ');
-            html += '<div class="preset-card" data-preset-id="' + p.id + '">';
+            var names = p.exercises.map(function (e) { return escapeHtml(e.name); }).join(', ');
+            html += '<div class="preset-card" data-preset-id="' + escapeHtml(p.id) + '">';
             html += '<span class="preset-card-emoji">\u2b50</span>';
             html += '<div class="preset-card-info">';
-            html += '<span class="preset-card-name">' + p.name + '</span>';
+            html += '<span class="preset-card-name">' + escapeHtml(p.name) + '</span>';
             html += '<span class="preset-card-detail">' + p.exercises.length + ' exos \u2022 ' + names + '</span>';
             html += '</div>';
-            html += '<button class="preset-card-delete" data-delete-id="' + p.id + '" title="Supprimer">\ud83d\uddd1\ufe0f</button>';
+            html += '<button class="preset-card-delete" data-delete-id="' + escapeHtml(p.id) + '" title="Supprimer">\ud83d\uddd1\ufe0f</button>';
             html += '</div>';
         }
         list.innerHTML = html;
