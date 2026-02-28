@@ -107,11 +107,47 @@ var SessionManager = (function () {
         renderSession();
     }
 
+    // ---- Personal Records ----
+    function getHistoricalBest(exId) {
+        try {
+            var sessions = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            var bestWeight = 0, bestVolume = 0;
+            sessions.forEach(function (s) {
+                s.exercises.forEach(function (ex) {
+                    if (ex.id !== exId) return;
+                    ex.sets.forEach(function (set) {
+                        if (set.weight > bestWeight) bestWeight = set.weight;
+                        var vol = set.weight * set.reps;
+                        if (vol > bestVolume) bestVolume = vol;
+                    });
+                });
+            });
+            return { bestWeight: bestWeight, bestVolume: bestVolume };
+        } catch (e) { return { bestWeight: 0, bestVolume: 0 }; }
+    }
+
     function addSet(exIndex, weight, reps) {
         weight = parseFloat(weight) || 0;
         reps = parseInt(reps) || 0;
-        if (reps <= 0) return;
-        sessionExercises[exIndex].sets.push({ weight: weight, reps: reps });
+        if (reps <= 0) {
+            if (typeof window.showToast === 'function') window.showToast('Le nombre de reps doit être ≥ 1', 'warning');
+            return;
+        }
+        if (weight === 0 && typeof window.showToast === 'function') {
+            window.showToast('Poids à 0 kg — exercice au poids de corps ?', 'info');
+        }
+
+        var ex = sessionExercises[exIndex];
+        var historical = getHistoricalBest(ex.id);
+        var isNewWeightPR = weight > historical.bestWeight && historical.bestWeight > 0;
+        var isNewVolumePR = (weight * reps) > historical.bestVolume && historical.bestVolume > 0;
+
+        ex.sets.push({ weight: weight, reps: reps, isPR: isNewWeightPR || isNewVolumePR });
+
+        if ((isNewWeightPR || isNewVolumePR) && typeof window.showToast === 'function') {
+            var prMsg = isNewWeightPR ? '🏆 Nouveau record de poids !' : '🏆 Nouveau record de volume !';
+            window.showToast(prMsg, 'success');
+        }
         renderSession();
     }
 
@@ -132,12 +168,14 @@ var SessionManager = (function () {
             stats.style.display = 'none';
             endBtn.style.display = 'none';
             document.getElementById('save-preset-btn').style.display = 'none';
+            document.getElementById('session-notes-wrap').style.display = 'none';
             return;
         }
         empty.style.display = 'none';
         stats.style.display = '';
         endBtn.style.display = '';
         document.getElementById('save-preset-btn').style.display = '';
+        document.getElementById('session-notes-wrap').style.display = '';
 
         var totalSets = 0, totalVolume = 0;
         list.innerHTML = '';
@@ -145,17 +183,109 @@ var SessionManager = (function () {
         sessionExercises.forEach(function (entry, exIdx) {
             var card = document.createElement('div');
             card.className = 'exercise-card';
-            var setsHtml = '';
+
+            // Header (safe DOM construction)
+            var header = document.createElement('div');
+            header.className = 'exo-card-header';
+
+            var info = document.createElement('div');
+            info.className = 'exo-card-info';
+            var emojiSpan = document.createElement('span');
+            emojiSpan.className = 'exo-card-emoji';
+            emojiSpan.textContent = entry.emoji;
+            var nameDiv = document.createElement('div');
+            var nameSpan = document.createElement('span');
+            nameSpan.className = 'exo-card-name';
+            nameSpan.textContent = entry.name;
+            var muscleSpan = document.createElement('span');
+            muscleSpan.className = 'exo-card-muscle';
+            muscleSpan.textContent = entry.muscle;
+            nameDiv.appendChild(nameSpan);
+            nameDiv.appendChild(muscleSpan);
+            info.appendChild(emojiSpan);
+            info.appendChild(nameDiv);
+
+            var actions = document.createElement('div');
+            actions.className = 'exo-card-actions';
+            var infoBtn = document.createElement('button');
+            infoBtn.className = 'exo-info-btn';
+            infoBtn.dataset.id = entry.id;
+            infoBtn.textContent = 'ℹ️';
+            var removeBtn = document.createElement('button');
+            removeBtn.className = 'exo-remove-btn';
+            removeBtn.dataset.idx = exIdx;
+            removeBtn.textContent = '✕';
+            actions.appendChild(infoBtn);
+            actions.appendChild(removeBtn);
+
+            header.appendChild(info);
+            header.appendChild(actions);
+            card.appendChild(header);
+
+            // Sets list
+            var setsList = document.createElement('div');
+            setsList.className = 'sets-list';
+
             entry.sets.forEach(function (s, sIdx) {
                 var vol = s.weight * s.reps;
                 totalSets++;
                 totalVolume += vol;
-                setsHtml += '<div class="set-row"><span class="set-number">Série ' + (sIdx + 1) + '</span><span class="set-detail">' + s.weight + ' kg × ' + s.reps + ' reps</span><span class="set-volume">' + vol + ' kg</span><button class="set-remove" data-ex="' + exIdx + '" data-set="' + sIdx + '">✕</button></div>';
-            });
 
-            card.innerHTML = '<div class="exo-card-header"><div class="exo-card-info"><span class="exo-card-emoji">' + entry.emoji + '</span><div><span class="exo-card-name">' + entry.name + '</span><span class="exo-card-muscle">' + entry.muscle + '</span></div></div><div class="exo-card-actions"><button class="exo-info-btn" data-id="' + entry.id + '">ℹ️</button><button class="exo-remove-btn" data-idx="' + exIdx + '">✕</button></div></div>' +
-                '<div class="sets-list">' + setsHtml + '</div>' +
-                '<div class="add-set-form"><input type="number" class="set-input" placeholder="kg" min="0" step="0.5" data-field="weight-' + exIdx + '"><span class="set-separator">×</span><input type="number" class="set-input" placeholder="reps" min="1" data-field="reps-' + exIdx + '"><button class="add-set-btn" data-ex="' + exIdx + '">✓</button></div>';
+                var row = document.createElement('div');
+                row.className = 'set-row';
+
+                var numSpan = document.createElement('span');
+                numSpan.className = 'set-number';
+                numSpan.textContent = 'Série ' + (sIdx + 1);
+
+                var detailSpan = document.createElement('span');
+                detailSpan.className = 'set-detail';
+                detailSpan.textContent = s.weight + ' kg × ' + s.reps + ' reps';
+                if (s.isPR) {
+                    var badge = document.createElement('span');
+                    badge.className = 'pr-badge';
+                    badge.textContent = '🏆 PR';
+                    detailSpan.appendChild(badge);
+                }
+
+                var volSpan = document.createElement('span');
+                volSpan.className = 'set-volume';
+                volSpan.textContent = vol + ' kg';
+
+                var delBtn = document.createElement('button');
+                delBtn.className = 'set-remove';
+                delBtn.dataset.ex = exIdx;
+                delBtn.dataset.set = sIdx;
+                delBtn.textContent = '✕';
+
+                row.appendChild(numSpan);
+                row.appendChild(detailSpan);
+                row.appendChild(volSpan);
+                row.appendChild(delBtn);
+                setsList.appendChild(row);
+            });
+            card.appendChild(setsList);
+
+            // Add-set form
+            var form = document.createElement('div');
+            form.className = 'add-set-form';
+            var wInput = document.createElement('input');
+            wInput.type = 'number'; wInput.className = 'set-input';
+            wInput.placeholder = 'kg'; wInput.min = '0'; wInput.step = '0.5';
+            wInput.dataset.field = 'weight-' + exIdx;
+            var sep = document.createElement('span');
+            sep.className = 'set-separator'; sep.textContent = '×';
+            var rInput = document.createElement('input');
+            rInput.type = 'number'; rInput.className = 'set-input';
+            rInput.placeholder = 'reps'; rInput.min = '1';
+            rInput.dataset.field = 'reps-' + exIdx;
+            var addBtn = document.createElement('button');
+            addBtn.className = 'add-set-btn'; addBtn.dataset.ex = exIdx;
+            addBtn.textContent = '✓';
+            form.appendChild(wInput); form.appendChild(sep);
+            form.appendChild(rInput); form.appendChild(addBtn);
+            card.appendChild(form);
+
             list.appendChild(card);
         });
 
@@ -198,10 +328,10 @@ var SessionManager = (function () {
     }
 
     function endSession() {
-        console.log('[Session] endSession called, exercises:', sessionExercises.length);
         if (sessionExercises.length === 0) return;
         var duration = sessionStart ? Math.round((Date.now() - sessionStart) / 60000) : 0;
         var totalSets = 0, totalVolume = 0;
+        var notes = (document.getElementById('session-notes').value || '').trim();
         sessionExercises.forEach(function (ex) {
             ex.sets.forEach(function (s) { totalSets++; totalVolume += s.weight * s.reps; });
         });
@@ -210,6 +340,7 @@ var SessionManager = (function () {
         var session = {
             date: new Date().toISOString(),
             duration: duration,
+            notes: notes,
             exercises: sessionExercises.map(function (ex) {
                 return { id: ex.id, name: ex.name, emoji: ex.emoji, muscle: ex.muscle, sets: ex.sets.slice() };
             }),
@@ -218,23 +349,59 @@ var SessionManager = (function () {
         };
         saveSession(session);
 
-        // Show recap
+        // Show recap stats
         document.getElementById('recap-exercises').textContent = sessionExercises.length;
         document.getElementById('recap-sets').textContent = totalSets;
         document.getElementById('recap-volume').textContent = totalVolume + ' kg';
         document.getElementById('recap-duration').textContent = duration + 'min';
 
+        // Recap details — safe DOM construction (no innerHTML with user data)
         var details = document.getElementById('recap-details');
         details.innerHTML = '';
         sessionExercises.forEach(function (ex) {
             var exVol = 0;
-            var setsHtml = '';
+            var card = document.createElement('div');
+            card.className = 'recap-exo-card';
+
+            var hdr = document.createElement('div');
+            hdr.className = 'recap-exo-header';
+            var nameSpan = document.createElement('span');
+            nameSpan.textContent = ex.emoji + ' ' + ex.name;
+            var volSpan = document.createElement('span');
+            volSpan.className = 'recap-exo-volume';
+
+            var setsDiv = document.createElement('div');
+            setsDiv.className = 'recap-exo-sets';
             ex.sets.forEach(function (s) {
                 exVol += s.weight * s.reps;
-                setsHtml += '<span class="recap-set">' + s.weight + 'kg × ' + s.reps + '</span>';
+                var tag = document.createElement('span');
+                tag.className = 'recap-set';
+                tag.textContent = s.weight + 'kg × ' + s.reps;
+                if (s.isPR) {
+                    var badge = document.createElement('span');
+                    badge.className = 'pr-badge';
+                    badge.textContent = '🏆 PR';
+                    tag.appendChild(badge);
+                }
+                setsDiv.appendChild(tag);
             });
-            details.innerHTML += '<div class="recap-exo-card"><div class="recap-exo-header"><span>' + ex.emoji + ' ' + ex.name + '</span><span class="recap-exo-volume">' + exVol + ' kg</span></div><div class="recap-exo-sets">' + setsHtml + '</div></div>';
+            volSpan.textContent = exVol + ' kg';
+            hdr.appendChild(nameSpan);
+            hdr.appendChild(volSpan);
+            card.appendChild(hdr);
+            card.appendChild(setsDiv);
+            details.appendChild(card);
         });
+
+        // Notes dans le récap
+        var notesBlock = document.getElementById('recap-notes-block');
+        var notesText  = document.getElementById('recap-notes-text');
+        if (notes) {
+            notesText.textContent = notes;
+            notesBlock.style.display = '';
+        } else {
+            notesBlock.style.display = 'none';
+        }
 
         document.getElementById('recap-modal').classList.add('open');
     }
@@ -242,6 +409,8 @@ var SessionManager = (function () {
     function resetSession() {
         sessionExercises = [];
         sessionStart = null;
+        var notesEl = document.getElementById('session-notes');
+        if (notesEl) notesEl.value = '';
         renderSession();
     }
 
@@ -251,8 +420,13 @@ var SessionManager = (function () {
             sessions.unshift(session);
             if (sessions.length > 100) sessions = sessions.slice(0, 100);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
-            console.log('[Session] Saved! Total sessions:', sessions.length);
-        } catch (e) { console.error('[Session] Save error:', e); }
+        } catch (e) {
+            var msg = e.name === 'QuotaExceededError'
+                ? 'Stockage plein ! Exportez vos données avant de continuer.'
+                : 'Erreur de sauvegarde. Données non enregistrées.';
+            if (typeof window.showToast === 'function') window.showToast(msg, 'error');
+            console.error('[Session] Save error:', e);
+        }
     }
 
     function getSessions() {

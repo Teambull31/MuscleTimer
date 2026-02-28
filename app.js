@@ -444,6 +444,86 @@
 
   freeStartBtn.addEventListener('click', startFreeTimer);
 
+  // ---- Toast notifications ----
+  function showToast(message, type) {
+    type = type || 'info';
+    const existing = document.querySelector('.toast');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.className = 'toast toast-' + type;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => toast.classList.add('show'));
+    });
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 300);
+    }, 3500);
+  }
+  // Expose globally so session.js and progress.js can use it
+  window.showToast = showToast;
+
+  // ---- Export / Import data ----
+  const STORAGE_KEY_SESSIONS = 'muscle-timer-sessions';
+  const STORAGE_KEY_PRESETS  = 'muscle-timer-presets';
+
+  function exportData() {
+    try {
+      const data = {
+        version: '3.0',
+        exportedAt: new Date().toISOString(),
+        sessions: JSON.parse(localStorage.getItem(STORAGE_KEY_SESSIONS)) || [],
+        presets:  JSON.parse(localStorage.getItem(STORAGE_KEY_PRESETS))  || [],
+        prefs:    JSON.parse(localStorage.getItem(PREFS_KEY))             || {}
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = 'muscletimer-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Données exportées !', 'success');
+    } catch (e) {
+      showToast('Erreur lors de l\'export', 'error');
+    }
+  }
+
+  function importData(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function (ev) {
+      try {
+        const data = JSON.parse(ev.target.result);
+        let imported = 0;
+        if (Array.isArray(data.sessions)) {
+          localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(data.sessions));
+          imported += data.sessions.length;
+        }
+        if (Array.isArray(data.presets)) {
+          localStorage.setItem(STORAGE_KEY_PRESETS, JSON.stringify(data.presets));
+        }
+        if (data.prefs && typeof data.prefs === 'object') {
+          localStorage.setItem(PREFS_KEY, JSON.stringify(data.prefs));
+        }
+        showToast('Import réussi ! (' + imported + ' séances)\nRechargement...', 'success');
+        setTimeout(() => location.reload(), 1800);
+      } catch (err) {
+        showToast('Fichier invalide ou corrompu', 'error');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  const exportBtn       = document.getElementById('export-data-btn');
+  const importFileInput = document.getElementById('import-data-input');
+  if (exportBtn)       exportBtn.addEventListener('click', exportData);
+  if (importFileInput) importFileInput.addEventListener('change', function (e) {
+    importData(e.target.files[0]);
+    e.target.value = '';
+  });
+
   // ---- Init ----
   loadPrefs();
   setRingProgress(0);

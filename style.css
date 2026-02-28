@@ -1980,3 +1980,234 @@ body.has-bg-image .bg-overlay {
     background: linear-gradient(135deg, var(--danger), #c0392b);
     box-shadow: 0 3px 14px rgba(255, 71, 87, .3)
 }
+/* ============================================================
+   NOUVELLES FONCTIONNALITÉS — v3.0
+   ============================================================ */
+
+/* === TOAST NOTIFICATIONS === */
+.toast {
+    position: fixed;
+    bottom: 76px;
+    left: 50%;
+    transform: translateX(-50%) translateY(16px);
+    background: rgba(20, 20, 48, 0.97);
+    color: #f0f0f5;
+    padding: 11px 20px;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: .84rem;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity .25s ease, transform .25s ease;
+    z-index: 9999;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    max-width: 88vw;
+    text-align: center;
+    pointer-events: none;
+    white-space: pre-line
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0)
+}
+
+.toast-success { border-left: 3px solid #2ecc71 }
+.toast-error   { border-left: 3px solid #e74c3c }
+.toast-info    { border-left: 3px solid var(--accent) }
+.toast-warning { border-left: 3px solid #f39c12 }
+
+/* === PR BADGE === */
+.pr-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: #fff;
+    font-size: .62rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    letter-spacing: .4px;
+    margin-left: 6px;
+    vertical-align: middle;
+    animation: pr-pop .35s cubic-bezier(.36, .07, .19, .97)
+}
+
+@keyframes pr-pop {
+    0%   { transform: scale(0); opacity: 0 }
+    60%  { transform: scale(1.2); opacity: 1 }
+    100% { transform: scale(1) }
+}
+
+/* === EXPORT / IMPORT === */
+.data-controls {
+    display: flex;
+    gap: 8px
+}
+
+.export-btn,
+.import-btn-label {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: .8rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: background .2s
+}
+
+.export-btn {
+    background: rgba(124, 92, 252, 0.18);
+    color: var(--accent);
+    border: 1px solid rgba(124, 92, 252, 0.3)
+}
+
+.export-btn:hover { background: rgba(124, 92, 252, 0.32) }
+
+.import-btn-label {
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--text-secondary);
+    border: 1px solid rgba(255, 255, 255, 0.1)
+}
+
+.import-btn-label:hover { background: rgba(255, 255, 255, 0.13) }
+
+/* === NOTES DE SÉANCE === */
+.session-notes-wrap {
+    margin: 10px 0 4px
+}
+
+.notes-label {
+    display: block;
+    font-size: .74rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: .5px
+}
+
+.session-notes-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: #f0f0f5;
+    font-family: 'Inter', sans-serif;
+    font-size: .84rem;
+    padding: 10px 14px;
+    resize: vertical;
+    min-height: 60px;
+    outline: none;
+    transition: border-color .2s
+}
+
+.session-notes-textarea::placeholder { color: rgba(240, 240, 245, 0.28) }
+.session-notes-textarea:focus        { border-color: var(--accent) }
+
+/* === TABLEAU DE BORD HEBDOMADAIRE === */
+.weekly-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px
+}
+
+.weekly-card-title {
+    font-size: .75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px
+}
+
+.weekly-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 12px
+}
+
+.wk-item {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 10px;
+    padding: 10px 4px
+}
+
+.wk-value {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1.1;
+    margin-bottom: 3px
+}
+
+.wk-label {
+    font-size: .62rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .4px
+}
+
+.weekly-muscles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px
+}
+
+.wk-muscle-chip {
+    background: rgba(124, 92, 252, 0.14);
+    color: var(--accent);
+    border: 1px solid rgba(124, 92, 252, 0.22);
+    border-radius: 20px;
+    font-size: .7rem;
+    font-weight: 600;
+    padding: 3px 10px
+}
+
+/* === RECAP NOTES === */
+.recap-notes-section {
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 10px;
+    font-size: .82rem;
+    color: var(--text-secondary);
+    white-space: pre-line;
+    border-left: 3px solid var(--accent)
+}
+
+.recap-notes-label {
+    font-size: .7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    display: block;
+    margin-bottom: 4px
+}
+
+/* === NOTES DANS L'HISTORIQUE === */
+.history-notes {
+    margin-top: 8px;
+    font-size: .78rem;
+    color: var(--text-muted);
+    font-style: italic;
+    padding-top: 6px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    white-space: pre-line
+}
