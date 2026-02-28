@@ -326,7 +326,7 @@ const ProgressManager = (function () {
 
         // Show most recent first
         const reversed = [...sessions].reverse();
-        list.innerHTML = reversed.slice(0, 20).map(session => {
+        list.innerHTML = reversed.map(session => {
             const dateStr = formatDate(session.date);
             const volume = session.totalVolume || 0;
             const sets = session.totalSets || 0;
