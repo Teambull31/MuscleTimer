@@ -64,6 +64,15 @@
                     <button class="pos-btn" data-pos="bottom">Bas</button>
                 </div>
             </div>
+            <div class="settings-section">
+                <h3>Données</h3>
+                <div class="data-controls">
+                    <button class="export-btn" id="export-data-btn">📤 Exporter</button>
+                    <label class="import-btn-label" for="import-data-input">📥 Importer
+                        <input type="file" id="import-data-input" accept=".json" hidden>
+                    </label>
+                </div>
+            </div>
         </div>
     </div>
     <div id="exercise-modal" class="modal-overlay">
@@ -112,6 +121,10 @@
                         class="recap-stat-label">Durée</span></div>
             </div>
             <div class="recap-details" id="recap-details"></div>
+            <div id="recap-notes-block" style="display:none" class="recap-notes-section">
+                <span class="recap-notes-label">📝 Notes</span>
+                <span id="recap-notes-text"></span>
+            </div>
             <div class="recap-actions">
                 <button id="close-recap-modal" class="recap-close-btn">Voir historique</button>
                 <button id="new-session-btn" class="recap-new-btn">Nouvelle séance</button>
@@ -254,6 +267,10 @@
                     <button class="preset-save-btn" id="save-preset-btn" style="display:none">💾 Sauvegarder</button>
                 </div>
                 <button class="add-exercise-btn" id="add-exercise-btn"><span>+</span> Ajouter un exercice</button>
+                <div class="session-notes-wrap" id="session-notes-wrap" style="display:none">
+                    <label class="notes-label" for="session-notes">📝 Notes de séance</label>
+                    <textarea id="session-notes" class="session-notes-textarea" placeholder="Ressenti, objectifs, commentaires..."></textarea>
+                </div>
                 <button class="end-session-btn" id="end-session-btn" style="display:none">🏁 Terminer la séance</button>
             </div>
         </section>
@@ -276,6 +293,7 @@
                 <p class="no-data-msg" id="no-data-msg">Sélectionne un exercice pour voir ta progression</p>
                 <div class="chart-container" id="chart-container" style="display:none"><canvas
                         id="progress-chart"></canvas></div>
+                <div class="weekly-card" id="weekly-stats-card" style="display:none"></div>
                 <div class="history-section">
                     <h2 class="history-title">📋 Historique des séances</h2>
                     <div id="history-list" class="history-list"></div><button class="clear-history-btn"

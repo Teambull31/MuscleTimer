@@ -26,7 +26,60 @@ const ProgressManager = (function () {
 
     function onTabActivated() {
         populateExerciseSelect();
+        renderWeeklyStats();
         renderHistory();
+    }
+
+    function renderWeeklyStats() {
+        const card = document.getElementById('weekly-stats-card');
+        if (!card) return;
+        const sessions = SessionManager.getSessions();
+        if (sessions.length === 0) { card.style.display = 'none'; return; }
+
+        const now = Date.now();
+        const weekMs = 7 * 24 * 60 * 60 * 1000;
+        const weeklySessions = sessions.filter(s => (now - new Date(s.date).getTime()) <= weekMs);
+
+        if (weeklySessions.length === 0) { card.style.display = 'none'; return; }
+        card.style.display = '';
+
+        let totalVolume = 0;
+        let totalSets = 0;
+        const muscles = {};
+
+        weeklySessions.forEach(s => {
+            totalVolume += s.totalVolume || 0;
+            totalSets += s.totalSets || 0;
+            (s.exercises || []).forEach(ex => {
+                muscles[ex.muscle] = (muscles[ex.muscle] || 0) + 1;
+            });
+        });
+
+        const sortedMuscles = Object.entries(muscles)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 4)
+            .map(([m]) => m);
+
+        const muscleChips = sortedMuscles.map(m => `<span class="wk-muscle-chip">${m}</span>`).join('');
+
+        card.innerHTML = `
+            <div class="weekly-card-title">📅 Cette semaine</div>
+            <div class="weekly-grid">
+                <div class="wk-item">
+                    <span class="wk-value">${weeklySessions.length}</span>
+                    <span class="wk-label">Séances</span>
+                </div>
+                <div class="wk-item">
+                    <span class="wk-value">${totalSets}</span>
+                    <span class="wk-label">Séries</span>
+                </div>
+                <div class="wk-item">
+                    <span class="wk-value">${formatVolumeShort(totalVolume)}</span>
+                    <span class="wk-label">Volume</span>
+                </div>
+            </div>
+            ${sortedMuscles.length ? `<div class="weekly-muscles">${muscleChips}</div>` : ''}
+        `;
     }
 
     function populateExerciseSelect() {
@@ -280,6 +333,10 @@ const ProgressManager = (function () {
             const exoCount = session.exercises ? session.exercises.length : 0;
             const durationStr = session.duration ? formatDuration(session.duration) : '—';
 
+                const notesHtml = session.notes
+                ? `<div class="history-notes">📝 ${session.notes.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`
+                : '';
+
             return `
         <div class="history-card">
           <div class="history-header">
@@ -294,6 +351,7 @@ const ProgressManager = (function () {
           <div class="history-exercises">
             ${(session.exercises || []).map(e => `<span class="history-exo-tag">${e.emoji} ${e.name}</span>`).join('')}
           </div>
+          ${notesHtml}
         </div>
       `;
         }).join('');
